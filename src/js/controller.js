@@ -2,15 +2,17 @@ import * as model from './model';
 import recipeView from './views/recipeView';
 import searchView from './views/searchView';
 import resultsView from './views/resultsView';
+import PaginationView from './views/paginationView'
 
 import { async } from 'regenerator-runtime';
 import 'core-js/stable';
 import 'regenerator-runtime';
+import paginationView from './views/paginationView';
 
 
-if(module.hot){
-  module.hot.accept()
-}
+// if(module.hot){
+//   module.hot.accept()
+// }
 
 
 const controlRecipes = async () => {
@@ -28,7 +30,6 @@ const controlRecipes = async () => {
     recipeView.renderError()
   }
 };
-// https://github.com/majidali129/forkify-full-fledged-vanilla-js-app.git
 
 const controlSearchResults = async () => {
   try {
@@ -42,17 +43,29 @@ const controlSearchResults = async () => {
     await model.loadSearchResults(query);
 
     // 3) RENDER SEARCH RESULTS
-    resultsView.render(model.state.search.results);
+    resultsView.render(model.getSearchResultsPage());
+
+    // 4) RENDER PAGINATION BUTTONS
+    PaginationView.render(model.state.search)
 
   } catch (err) {
     console.log(err);
   }
 }
 
+const controlPagination = (gotoPage) => {
+ // 3) RENDER NEW SEARCH RESULTS
+    resultsView.render(model.getSearchResultsPage(gotoPage));
+
+    // 4) RENDER NEW PAGINATION BUTTONS
+    PaginationView.render(model.state.search)  
+}
+
 // subscriber / observer
 const init = () => {
-  recipeView.addHandlerRender(controlRecipes)
-  searchView.addHandlerSearch(controlSearchResults)
+  recipeView.addHandlerRender(controlRecipes);
+  searchView.addHandlerSearch(controlSearchResults);
+  paginationView.addHandlerClick(controlPagination)
 }
 
 init()
