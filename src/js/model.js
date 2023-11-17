@@ -12,7 +12,7 @@ export const state = {
   },
 };
 
-export const loadRecipe = async id => {
+export const loadRecipe = async (id) => {
   try {
     let data = await getJSON(`${API_URL}/${id}`);
     let { recipe } = data.data;
@@ -26,6 +26,7 @@ export const loadRecipe = async id => {
       cookingTime: recipe.cooking_time,
       ingredients: recipe.ingredients,
     };
+    console.log(recipe);
   } catch (err) {
     // alert(err.message);
     // console.log(`${err.message} 🌟🌟🌟`);
@@ -37,7 +38,7 @@ export const loadSearchResults = async (query) => {
   try {
     state.search.query = query;
     const data = await getJSON(`${API_URL}?search=${query}`);
-    console.log(data);
+    // console.log(data);
     state.search.results = data.data.recipes.map(rec => {
       return {
         id: rec.id,
@@ -47,17 +48,23 @@ export const loadSearchResults = async (query) => {
       };
     });
     // console.log(state.search);
-    
   } catch (err) {
     throw err;
   }
 };
 
-
-// RESPONSIBLE FOR SEARCH RESULTS PAGENATION 
-export const getSearchResultsPage = (page=state.search.page) => {
+// RESPONSIBLE FOR SEARCH RESULTS PAGENATION
+export const getSearchResultsPage = (page = state.search.page) => {
   state.search.page = page;
   const start = (page - 1) * state.search.resultsPerPage; //0
-  const end =  page * state.search.resultsPerPage;  // 10
-  return state.search.results.slice(start,end);
-}
+  const end = page * state.search.resultsPerPage; // 10
+  return state.search.results.slice(start, end);
+};
+
+// TO UPDATE SERVINGS OF A RECIPE
+export const updateServings = newServings => {
+  state.recipe.ingredients.forEach(ing => {
+    ing.quantity = (ing.quantity * newServings) / state.recipe.servings;
+  });
+  state.recipe.servings = newServings;
+};
